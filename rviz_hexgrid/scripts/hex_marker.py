@@ -16,18 +16,16 @@ def edge_pts(x0, y0, length, diameter, angle, num_segments):
     s = 0
     for j in range(num_segments):
         p1 = Point()
-        p1.x = x0 + s * math.cos(angle)
-        p1.y = y0 + s * math.sin(angle)
+        p1.x = x0 + s
+        p1.y = y0
         points.append(p1)
 
-        s += length
-
         p2 = Point()
-        p2.x = x0 + s * math.cos(angle)
-        p2.y = y0 + s * math.sin(angle)
+        p2.x = p1.x + length * math.cos(angle)
+        p2.y = p1.y + length * math.sin(angle)
         points.append(p2)
 
-        s += diameter
+        s += diameter + length
     return points
 
 rospy.init_node('hex_marker')
@@ -58,38 +56,42 @@ marker.color.b = rospy.get_param("~b", 0.5)
 
 num_segments = rospy.get_param("~segments", 10)
 
-i = 2
 for i in range(3):
     angle = float(i) * 2.0 / 3.0 * math.pi
     fr = 1.0
     if i == 1:
         fr = -1.0
     frl = 1.0
-    if i == 2:
-        frl = -1.0
+    # if i == 2:
+    #     frl = -1.0
     print length, diameter, math.degrees(angle), num_segments
-    if True:
-        x0 = 0
-        y0 = 0
-        if i == 2:
-            x0 += length
-        for j in range(num_segments):
-            marker.points.extend(edge_pts(x0, y0, frl * length, frl * diameter, angle, num_segments))
-            x0 += fr * min_diameter * math.cos(angle + math.pi/2.0)
-            y0 += fr * min_diameter * math.sin(angle + math.pi/2.0)
-
-    if True:
+    xoff = 0
+    yoff = 0
+    if i == 2:
         xoff = 1.5 * length
         yoff = min_diameter / 2.0
-        x0 = xoff * math.cos(angle) + yoff * math.cos(angle + math.pi/2.0)
-        y0 = xoff * math.sin(angle) + yoff * math.sin(angle + math.pi/2.0)
-
-        if i == 2:
-            x0 += length
-        for j in range(num_segments):
+    if True:
+        x0 = 0 + xoff
+        y0 = 0 + yoff
+        soff = 0
+        if i == 0:
+            soff = 1
+        for j in range(num_segments + soff):
             marker.points.extend(edge_pts(x0, y0, frl * length, frl * diameter, angle, num_segments))
-            x0 += fr * min_diameter * math.cos(angle + math.pi/2.0)
-            y0 += fr * min_diameter * math.sin(angle + math.pi/2.0)
+            y0 += min_diameter
+
+    if True:
+        soff = 0
+        if i == 2:
+            xoff = -1.5 * length
+        if i == 0:
+            soff = -1
+        x0 = 1.5 * length + xoff
+        y0 = min_diameter / 2.0 + yoff
+        for j in range(num_segments):
+            marker.points.extend(edge_pts(x0, y0, frl * length,
+                                 frl * diameter, angle, num_segments + soff))
+            y0 += min_diameter
 
 # while not rospy.is_shutdown():
 for i in range(3):

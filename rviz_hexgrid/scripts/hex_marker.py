@@ -54,7 +54,13 @@ marker.color.r = rospy.get_param("~r", 0.5)
 marker.color.g = rospy.get_param("~g", 0.5)
 marker.color.b = rospy.get_param("~b", 0.5)
 
-num_segments = rospy.get_param("~segments", 10)
+x_segments = rospy.get_param("~x_segments", 10)
+y_segments = rospy.get_param("~y_segments", 16)
+
+# the grid will be segments * min_diameter tall (with segments-1 columns interleaved)
+# and segments * diameter * 1.5 - length * 1.5 width without aspect ratio correction
+ratio = (x_segments * diameter * 1.5 - length * 1.5) / (x_segments * min_diameter)
+rospy.loginfo(ratio)
 
 for i in range(3):
     angle = float(i) * 2.0 / 3.0 * math.pi
@@ -64,7 +70,7 @@ for i in range(3):
     frl = 1.0
     # if i == 2:
     #     frl = -1.0
-    print length, diameter, math.degrees(angle), num_segments
+    print length, diameter, math.degrees(angle), x_segments
     xoff = 0
     yoff = 0
     if i == 2:
@@ -76,8 +82,8 @@ for i in range(3):
         soff = 0
         if i == 0:
             soff = 1
-        for j in range(num_segments + soff):
-            marker.points.extend(edge_pts(x0, y0, frl * length, frl * diameter, angle, num_segments))
+        for j in range(y_segments + soff):
+            marker.points.extend(edge_pts(x0, y0, frl * length, frl * diameter, angle, x_segments))
             y0 += min_diameter
 
     if True:
@@ -88,9 +94,9 @@ for i in range(3):
             soff = -1
         x0 = 1.5 * length + xoff
         y0 = min_diameter / 2.0 + yoff
-        for j in range(num_segments):
+        for j in range(y_segments):
             marker.points.extend(edge_pts(x0, y0, frl * length,
-                                 frl * diameter, angle, num_segments + soff))
+                                 frl * diameter, angle, x_segments + soff))
             y0 += min_diameter
 
 # while not rospy.is_shutdown():

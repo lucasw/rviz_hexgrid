@@ -47,7 +47,7 @@ marker.id = 0
 marker.type = Marker.LINE_LIST
 marker.action = Marker.ADD
 marker.pose.orientation.w = 1.0
-marker.scale.x = length / 20.0
+marker.scale.x = length / 10.0
 marker.scale.y = 1.0
 marker.scale.z = 1.0
 
@@ -58,25 +58,41 @@ marker.color.b = rospy.get_param("~b", 0.5)
 
 num_segments = rospy.get_param("~segments", 10)
 
-i = 1
+i = 2
 for i in range(3):
-    x0 = 0
-    y0 = 0
     angle = float(i) * 2.0 / 3.0 * math.pi
     fr = 1.0
     if i == 1:
         fr = -1.0
     frl = 1.0
     if i == 2:
-        x0 += length
         frl = -1.0
     print length, diameter, math.degrees(angle), num_segments
-    for i in range(num_segments):
-        marker.points.extend(edge_pts(x0, y0, frl * length, frl * diameter, angle, num_segments))
-        x0 += fr * min_diameter * math.cos(angle + math.pi/2.0)
-        y0 += fr * min_diameter * math.sin(angle + math.pi/2.0)
+    if True:
+        x0 = 0
+        y0 = 0
+        if i == 2:
+            x0 += length
+        for j in range(num_segments):
+            marker.points.extend(edge_pts(x0, y0, frl * length, frl * diameter, angle, num_segments))
+            x0 += fr * min_diameter * math.cos(angle + math.pi/2.0)
+            y0 += fr * min_diameter * math.sin(angle + math.pi/2.0)
 
-while not rospy.is_shutdown():
+    if True:
+        xoff = 1.5 * length
+        yoff = min_diameter / 2.0
+        x0 = xoff * math.cos(angle) + yoff * math.cos(angle + math.pi/2.0)
+        y0 = xoff * math.sin(angle) + yoff * math.sin(angle + math.pi/2.0)
+
+        if i == 2:
+            x0 += length
+        for j in range(num_segments):
+            marker.points.extend(edge_pts(x0, y0, frl * length, frl * diameter, angle, num_segments))
+            x0 += fr * min_diameter * math.cos(angle + math.pi/2.0)
+            y0 += fr * min_diameter * math.sin(angle + math.pi/2.0)
+
+# while not rospy.is_shutdown():
+for i in range(3):
     marker.header.stamp = rospy.Time.now()
     # rospy.loginfo(len(marker.points))
     pub.publish(marker)

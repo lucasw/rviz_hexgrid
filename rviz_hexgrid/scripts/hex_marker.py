@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Copyright 2017 Lucas Walter
-#
-# Generate triangle list Marker
+# BSD 3 license
+# Generate hex grid Marker
 
 import math
 import rospy
